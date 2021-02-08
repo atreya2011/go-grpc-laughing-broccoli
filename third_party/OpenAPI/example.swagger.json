@@ -4,6 +4,11 @@
     "title": "example.proto",
     "version": "1.0"
   },
+  "tags": [
+    {
+      "name": "UserService"
+    }
+  ],
   "schemes": [
     "https"
   ],
@@ -125,6 +130,6 @@
   },
   "externalDocs": {
     "description": "gRPC-gateway boilerplate repository",
-    "url": "https://github.com/johanbrandhorst/grpc-gateway-boilerplate"
+    "url": "https://github.com/atreya2011/go-grpc-laughing-broccoli"
   }
 }
