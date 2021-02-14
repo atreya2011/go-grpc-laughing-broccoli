@@ -13,7 +13,6 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rakyll/statik/fs"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
 
 	"github.com/atreya2011/go-grpc-laughing-broccoli/insecure"
@@ -25,8 +24,10 @@ import (
 
 // getOpenAPIHandler serves an OpenAPI UI.
 // Adapted from https://github.com/philips/grpc-gateway-example/blob/a269bcb5931ca92be0ceae6130ac27ae89582ecc/cmd/serve.go#L63
-func getOpenAPIHandler() http.Handler {
-	mime.AddExtensionType(".svg", "image/svg+xml")
+func getOpenAPIHandler() (http.Handler, error) {
+	if err := mime.AddExtensionType(".svg", "image/svg+xml"); err != nil {
+		return nil, err
+	}
 
 	statikFS, err := fs.New()
 	if err != nil {
@@ -34,7 +35,7 @@ func getOpenAPIHandler() http.Handler {
 		panic("creating OpenAPI filesystem: " + err.Error())
 	}
 
-	return http.FileServer(statikFS)
+	return http.FileServer(statikFS), nil
 }
 
 // Run runs the gRPC-Gateway, dialling the provided address.
@@ -48,7 +49,7 @@ func Run(dialAddr string) error {
 	conn, err := grpc.DialContext(
 		context.Background(),
 		dialAddr,
-		grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(insecure.CertPool, "")),
+		grpc.WithInsecure(),
 		grpc.WithBlock(),
 	)
 	if err != nil {
@@ -61,7 +62,10 @@ func Run(dialAddr string) error {
 		return fmt.Errorf("failed to register gateway: %w", err)
 	}
 
-	oa := getOpenAPIHandler()
+	oa, err := getOpenAPIHandler()
+	if err != nil {
+		return fmt.Errorf("failed to get open api handler: %w", err)
+	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
