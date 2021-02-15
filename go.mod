@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/bufbuild/buf v0.37.0
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.2.0

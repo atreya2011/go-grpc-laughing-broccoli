@@ -2,9 +2,11 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sync"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gofrs/uuid"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"google.golang.org/grpc/codes"
@@ -57,17 +59,33 @@ func (b *Backend) ListUsers(_ *pbExample.ListUsersRequest, srv pbExample.UserSer
 }
 
 type userClaims struct {
-	id   int
-	name string
+	name  string
+	email string
 }
 
 // parse jwt to extract user claims
-func parseToken(token string) (userClaims, error) {
-	log.Println("parsing received token:", token)
-	return userClaims{
-		id:   1,
-		name: "test",
-	}, nil
+func parseToken(token string) (*userClaims, error) {
+	hmacSampleSecret := []byte("secret") // TODO: get this from env
+
+	jwToken, err := jwt.Parse(token, func(tkn *jwt.Token) (interface{}, error) {
+		// validate the alg is what you expect:
+		if _, ok := tkn.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", tkn.Header["alg"])
+		}
+		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+		return hmacSampleSecret, nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error parsing token: %w", err)
+	}
+
+	if claims, ok := jwToken.Claims.(jwt.MapClaims); ok && jwToken.Valid {
+		return &userClaims{
+			name:  claims["name"].(string),
+			email: claims["email"].(string),
+		}, nil
+	}
+	return nil, fmt.Errorf("invalid claims: %w", err)
 }
 
 // ExampleAuthFunc is used by a middleware to authenticate requests
