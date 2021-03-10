@@ -9,8 +9,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 
-	pbExample "github.com/atreya2011/go-grpc-laughing-broccoli/proto"
 	"github.com/atreya2011/go-grpc-laughing-broccoli/server"
+	pbExample "github.com/atreya2011/grpc-proto-laughing-brocolli/go/example/v1"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 
@@ -32,7 +32,7 @@ func main() {
 	s := grpc.NewServer(grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(server.ExampleAuthFunc)))
 
 	wrappedGrpc := grpcweb.WrapServer(s, grpcweb.WithOriginFunc(func(origin string) bool {
-		return origin == "http://localhost:3005"
+		return origin == "http://localhost:3000"
 	}))
 	grpcWebHandler := http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
 		wrappedGrpc.ServeHTTP(resp, req)

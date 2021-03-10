@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 
 	"github.com/atreya2011/go-grpc-laughing-broccoli/insecure"
-	pbExample "github.com/atreya2011/go-grpc-laughing-broccoli/proto"
+	pbExample "github.com/atreya2011/grpc-proto-laughing-brocolli/go/example/v1"
 
 	// Static files
 	_ "github.com/atreya2011/go-grpc-laughing-broccoli/statik"

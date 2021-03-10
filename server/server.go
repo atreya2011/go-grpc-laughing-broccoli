@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	pbExample "github.com/atreya2011/go-grpc-laughing-broccoli/proto"
+	pbExample "github.com/atreya2011/grpc-proto-laughing-brocolli/go/example/v1"
 )
 
 // Backend implements the protobuf interface
@@ -29,7 +29,7 @@ func New() *Backend {
 }
 
 // AddUser adds a user to the in-memory store.
-func (b *Backend) AddUser(ctx context.Context, _ *pbExample.AddUserRequest) (*pbExample.User, error) {
+func (b *Backend) AddUser(ctx context.Context, _ *pbExample.AddUserRequest) (*pbExample.AddUserResponse, error) {
 	log.Println("user claims:", ctx.Value(userClaims{}))
 
 	b.mu.Lock()
@@ -40,7 +40,7 @@ func (b *Backend) AddUser(ctx context.Context, _ *pbExample.AddUserRequest) (*pb
 	}
 	b.users = append(b.users, user)
 
-	return user, nil
+	return &pbExample.AddUserResponse{User: user}, nil
 }
 
 // ListUsers lists all users in the store.
@@ -49,7 +49,7 @@ func (b *Backend) ListUsers(_ *pbExample.ListUsersRequest, srv pbExample.UserSer
 	defer b.mu.RUnlock()
 
 	for _, user := range b.users {
-		err := srv.Send(user)
+		err := srv.Send(&pbExample.ListUsersResponse{User: user})
 		if err != nil {
 			return err
 		}
