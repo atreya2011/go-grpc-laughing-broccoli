@@ -9,8 +9,8 @@ import (
 	"google.golang.org/grpc/grpclog"
 
 	"github.com/atreya2011/go-grpc-laughing-broccoli/gateway"
-	pbExample "github.com/atreya2011/go-grpc-laughing-broccoli/proto"
 	"github.com/atreya2011/go-grpc-laughing-broccoli/server"
+	pbExample "github.com/atreya2011/grpc-proto-laughing-brocolli/go/example/v1"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 
 	// Static files

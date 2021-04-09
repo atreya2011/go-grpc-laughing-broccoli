@@ -10,13 +10,14 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gorilla/handlers"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rakyll/statik/fs"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 
 	"github.com/atreya2011/go-grpc-laughing-broccoli/insecure"
-	pbExample "github.com/atreya2011/go-grpc-laughing-broccoli/proto"
+	pbExample "github.com/atreya2011/grpc-proto-laughing-brocolli/go/example/v1"
 
 	// Static files
 	_ "github.com/atreya2011/go-grpc-laughing-broccoli/statik"
@@ -57,6 +58,7 @@ func Run(dialAddr string) error {
 	}
 
 	gwmux := runtime.NewServeMux()
+
 	err = pbExample.RegisterUserServiceHandler(context.Background(), gwmux, conn)
 	if err != nil {
 		return fmt.Errorf("failed to register gateway: %w", err)
@@ -72,11 +74,18 @@ func Run(dialAddr string) error {
 		port = "11000"
 	}
 	gatewayAddr := "0.0.0.0:" + port
+
+	newMux := handlers.CORS(
+		handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"}),
+		handlers.AllowedOrigins([]string{"http://localhost:3000"}),
+		handlers.AllowedHeaders([]string{"content-type", "authorization"}),
+	)(gwmux)
+
 	gwServer := &http.Server{
 		Addr: gatewayAddr,
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasPrefix(r.URL.Path, "/api") {
-				gwmux.ServeHTTP(w, r)
+				newMux.ServeHTTP(w, r)
 				return
 			}
 			oa.ServeHTTP(w, r)
